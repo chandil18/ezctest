@@ -35,7 +35,7 @@ static int g_teardown_count = 0;
 /* 辅助函数：用于演示 DEFER 清理 */
 static void cleanup_buffer(void *ptr) {
     if (ptr) {
-        printf("  [DEFER] 清理缓冲区: %p\n", ptr);
+        //printf("  [DEFER] 清理缓冲区: %p\n", ptr);
         free(ptr);
     }
 }
@@ -44,7 +44,7 @@ static void cleanup_buffer(void *ptr) {
 static void cleanup_file(void *ptr) {
     if (ptr) {
         fclose((FILE *)ptr);
-        printf("  [DEFER] 关闭文件\n");
+        //printf("  [DEFER] 关闭文件\n");
     }
 }
 
@@ -199,13 +199,13 @@ TEST(FloatAssertions, ExpectNear) {
 TEST(FatalAssertions, AssertTrue) {
     /* ASSERT_TRUE: 断言条件为真，失败会立即终止测试 */
     ASSERT_TRUE(1 == 1);
-    printf("  这行会执行\n");
+    //printf("  这行会执行\n");
 }
 
 TEST(FatalAssertions, AssertFalse) {
     /* ASSERT_FALSE: 断言条件为假 */
     ASSERT_FALSE(1 == 2);
-    printf("  这行会执行\n");
+    //printf("  这行会执行\n");
 }
 
 TEST(FatalAssertions, AssertEQ) {
@@ -213,7 +213,7 @@ TEST(FatalAssertions, AssertEQ) {
     int a = 42;
     int b = 42;
     ASSERT_EQ(a, b);
-    printf("  断言通过后继续执行\n");
+    //printf("  断言通过后继续执行\n");
 }
 
 TEST(FatalAssertions, AssertNE) {
@@ -295,7 +295,7 @@ SETUP(FixtureDemo) {
         }
     }
     g_setup_count++;
-    printf("  [SETUP] 初始化测试环境 (第 %d 次)\n", g_setup_count);
+    //printf("  [SETUP] 初始化测试环境 (第 %d 次)\n", g_setup_count);
 }
 
 /* TEARDOWN: 在测试套件的每个测试之后执行 */
@@ -306,7 +306,7 @@ TEARDOWN(FixtureDemo) {
         g_test_data = NULL;
     }
     g_teardown_count++;
-    printf("  [TEARDOWN] 清理测试环境 (第 %d 次)\n", g_teardown_count);
+    //printf("  [TEARDOWN] 清理测试环境 (第 %d 次)\n", g_teardown_count);
 }
 
 TEST(FixtureDemo, TestWithSetup1) {
@@ -314,14 +314,14 @@ TEST(FixtureDemo, TestWithSetup1) {
     ASSERT_NOT_NULL(g_test_data);
     EXPECT_EQ(g_test_data[0], 0);
     EXPECT_EQ(g_test_data[5], 50);
-    printf("  测试 1 使用了 Setup 初始化的数据\n");
+    //printf("  测试 1 使用了 Setup 初始化的数据\n");
 }
 
 TEST(FixtureDemo, TestWithSetup2) {
     /* 每个测试都会独立执行一次 Setup 和 Teardown */
     ASSERT_NOT_NULL(g_test_data);
     EXPECT_EQ(g_test_data[9], 90);
-    printf("  测试 2 也使用了 Setup 初始化的数据\n");
+    //printf("  测试 2 也使用了 Setup 初始化的数据\n");
 }
 
 TEST(FixtureDemo, TestWithSetup3) {
@@ -330,7 +330,7 @@ TEST(FixtureDemo, TestWithSetup3) {
     /* 修改数据不会影响下一个测试 */
     g_test_data[0] = 999;
     EXPECT_EQ(g_test_data[0], 999);
-    printf("  测试 3 修改了数据，但不影响其他测试\n");
+    //printf("  测试 3 修改了数据，但不影响其他测试\n");
 }
 
 /* ============================================================================
@@ -349,7 +349,7 @@ TEST(DeferDemo, BasicDefer) {
     
     /* 注册清理函数 - 第一个 */
     DEFER(cleanup_buffer, buffer1);
-    printf("  注册了 buffer1 的清理函数\n");
+    //printf("  注册了 buffer1 的清理函数\n");
     
     /* 分配更多资源 */
     buffer2 = (char *)malloc(200);
@@ -358,13 +358,13 @@ TEST(DeferDemo, BasicDefer) {
     
     /* 注册清理函数 - 第二个 */
     DEFER(cleanup_buffer, buffer2);
-    printf("  注册了 buffer2 的清理函数\n");
+    //printf("  注册了 buffer2 的清理函数\n");
     
     /* 使用资源 */
     EXPECT_STREQ(buffer1, "Hello");
     EXPECT_STREQ(buffer2, "World");
     
-    printf("  测试结束，DEFER 清理函数将按 LIFO 顺序执行\n");
+    //printf("  测试结束，DEFER 清理函数将按 LIFO 顺序执行\n");
     /* 测试结束时会自动执行：
      * 1. cleanup_buffer(buffer2)  // 后注册的先执行
      * 2. cleanup_buffer(buffer1)  // 先注册的后执行
@@ -382,22 +382,22 @@ TEST(DeferDemo, DeferWithFile) {
     
     /* 注册文件关闭函数 */
     DEFER(cleanup_file, fp);
-    printf("  注册了文件关闭函数\n");
+    //printf("  注册了文件关闭函数\n");
     
     /* 写入数据 */
-    fprintf(fp, "DEFER test\n");
+    //printf(fp, "DEFER test\n");
     fflush(fp);
     
     /* 分配内存 */
     buffer = (char *)malloc(50);
     ASSERT_NOT_NULL(buffer);
     DEFER(cleanup_buffer, buffer);
-    printf("  注册了内存清理函数\n");
+    //printf("  注册了内存清理函数\n");
     
     /* 即使这里发生断言失败，清理函数也会执行 */
     EXPECT_NOT_NULL(buffer);
     
-    printf("  测试结束，将先清理内存，再关闭文件（LIFO）\n");
+    //printf("  测试结束，将先清理内存，再关闭文件（LIFO）\n");
 }
 
 TEST(DeferDemo, DeferWithAssertFailure) {
@@ -407,8 +407,8 @@ TEST(DeferDemo, DeferWithAssertFailure) {
     ASSERT_NOT_NULL(important_resource);
     DEFER(cleanup_buffer, important_resource);
     
-    printf("  已分配重要资源并注册清理函数\n");
-    printf("  即使后面的测试失败，资源也会被正确清理\n");
+    //printf("  已分配重要资源并注册清理函数\n");
+    //printf("  即使后面的测试失败，资源也会被正确清理\n");
     
     /* 这个断言会通过 */
     EXPECT_EQ(1, 1);
@@ -422,32 +422,32 @@ TEST(DeferDemo, DeferWithAssertFailure) {
 
 TEST(ExpectVsAssert, ExpectContinues) {
     /* EXPECT 失败后会继续执行（这里演示正常情况） */
-    printf("  开始测试\n");
+    //printf("  开始测试\n");
     
     EXPECT_EQ(1, 1);  /* 这个会成功 */
-    printf("  第一个 EXPECT 断言成功\n");
+    //printf("  第一个 EXPECT 断言成功\n");
     
     EXPECT_LT(3, 4);  /* 这个也会成功 */
-    printf("  第二个 EXPECT 断言成功\n");
+    //printf("  第二个 EXPECT 断言成功\n");
     
     EXPECT_EQ(5, 5);  /* 这个会成功 */
-    printf("  所有 EXPECT 都成功，测试完成\n");
-    printf("  提示：如果 EXPECT 失败，测试会继续执行，记录失败但不停止\n");
+    //printf("  所有 EXPECT 都成功，测试完成\n");
+    //printf("  提示：如果 EXPECT 失败，测试会继续执行，记录失败但不停止\n");
 }
 
 TEST(ExpectVsAssert, AssertStops) {
     /* ASSERT 失败后会立即停止测试（这里演示正常情况） */
-    printf("  开始测试\n");
+    //printf("  开始测试\n");
     
     ASSERT_EQ(1, 1);  /* 这个会成功 */
-    printf("  第一个 ASSERT 断言成功，继续执行\n");
+    //printf("  第一个 ASSERT 断言成功，继续执行\n");
     
     ASSERT_EQ(2, 2);  /* 这个会成功 */
-    printf("  第二个 ASSERT 断言成功\n");
+    //printf("  第二个 ASSERT 断言成功\n");
     
     ASSERT_EQ(5, 5);  /* 这个会成功 */
-    printf("  所有 ASSERT 都成功，测试完成\n");
-    printf("  提示：如果 ASSERT 失败，测试会立即停止，不执行后续代码\n");
+    //printf("  所有 ASSERT 都成功，测试完成\n");
+    //printf("  提示：如果 ASSERT 失败，测试会立即停止，不执行后续代码\n");
 }
 
 /* ============================================================================
@@ -459,7 +459,7 @@ TEST(MixedDemo, ResourceManagement) {
     int *data;
     int i;
     
-    printf("  这个测试套件没有 Setup/Teardown\n");
+    //printf("  这个测试套件没有 Setup/Teardown\n");
     
     /* 分配资源并使用 DEFER 管理 */
     data = (int *)malloc(100 * sizeof(int));
@@ -479,7 +479,7 @@ TEST(MixedDemo, ResourceManagement) {
     /* 使用 ASSERT 检查关键条件 */
     ASSERT_LT(data[10], data[20]);
     
-    printf("  测试完成，DEFER 会自动清理内存\n");
+    //printf("  测试完成，DEFER 会自动清理内存\n");
 }
 
 TEST(MixedDemo, ComplexTest) {
@@ -518,7 +518,7 @@ TEST(MixedDemo, ComplexTest) {
     EXPECT_FLOAT_EQ(ratio, 1.0f);
     EXPECT_NEAR(ratio, 1.0, 0.001);
     
-    printf("  复杂测试完成\n");
+    //printf("  复杂测试完成\n");
 }
 
 /* ============================================================================
@@ -583,14 +583,14 @@ TEST(FailureDemo, ExpectFailure) {
     // 故意失败的 EXPECT 测试
     EXPECT_EQ(1, 2);  // 这会失败但继续
     EXPECT_TRUE(0);   // 这也会失败但继续
-    printf("  即使失败，测试也会继续到这里\n");
+    //printf("  即使失败，测试也会继续到这里\n");
 }
 
 TEST(FailureDemo, AssertFailure) {
     // 故意失败的 ASSERT 测试
-    printf("  开始测试\n");
+    //printf("  开始测试\n");
     ASSERT_EQ(1, 2);  // 这会失败并立即停止
-    printf("  这行永远不会输出\n");
+    //printf("  这行永远不会输出\n");
 }
 */
 
