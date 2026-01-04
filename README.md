@@ -8,7 +8,7 @@
 [![C99](https://img.shields.io/badge/standard-C99-green.svg)](https://en.wikipedia.org/wiki/C99)
 [![C++](https://img.shields.io/badge/C%2B%2B-compatible-orange.svg)](https://en.cppreference.com/w/)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS%20%7C%20STM32-lightgrey.svg)](readme_ch.md)
-[![Version](https://img.shields.io/badge/version-3.2.0-brightgreen.svg)](ezctest.h)
+[![Version](https://img.shields.io/badge/version-3.9.0-brightgreen.svg)](ezctest.h)
 
 **[English](readme_en.md) | 简体中文**
 
