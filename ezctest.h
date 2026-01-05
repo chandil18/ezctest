@@ -106,7 +106,8 @@
 #if defined(__GNUC__) && !defined(__clang__)
 #define EZCTEST_COMPILER_GCC
 /* GCC版本计算: __GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ */
-#define EZCTEST_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#define EZCTEST_GCC_VERSION                                                    \
+  (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 /* GCC 3.3之前不支持 __attribute__((constructor))，需要使用内存扫描机制 */
 #if EZCTEST_GCC_VERSION < 30300
 #define EZCTEST_GCC_NO_CONSTRUCTOR
@@ -120,13 +121,13 @@
 /* 禁用"未使用函数"警告的宏 */
 #if defined(_MSC_VER) && _MSC_VER >= 1300
 /* MSVC 7.0+: 支持 __pragma */
-#define EZCTEST_DISABLE_UNUSED_FUNCTION_BEGIN                                 \
+#define EZCTEST_DISABLE_UNUSED_FUNCTION_BEGIN                                  \
   __pragma(warning(push)) __pragma(warning(disable : 4505))
 #define EZCTEST_DISABLE_UNUSED_FUNCTION_END __pragma(warning(pop))
 
 #elif defined(__GNUC__) || defined(__clang__)
 /* GCC/Clang: -Wunused-function */
-#define EZCTEST_DISABLE_UNUSED_FUNCTION_BEGIN                                 \
+#define EZCTEST_DISABLE_UNUSED_FUNCTION_BEGIN                                  \
   _Pragma("GCC diagnostic push")                                               \
       _Pragma("GCC diagnostic ignored \"-Wunused-function\"")
 #define EZCTEST_DISABLE_UNUSED_FUNCTION_END _Pragma("GCC diagnostic pop")
@@ -181,16 +182,17 @@ EZCTEST_DISABLE_UNUSED_FUNCTION_BEGIN
 #endif
 
 /* MSVC兼容性：snprintf */
-#if _MSC_VER >= 1400 && _MSC_VER < 1900  /* VC8-VC14: 使用安全版本 */
-  /* VC8-VC14：使用 _snprintf_s 消除 C4996 警告 */
-  #define snprintf(buf, size, fmt, ...) _snprintf_s(buf, size, _TRUNCATE, fmt, ##__VA_ARGS__)
-#elif _MSC_VER < 1400  /* VC6-VC7.1: 使用 _snprintf */
-  #define snprintf _snprintf
+#if _MSC_VER >= 1400 && _MSC_VER < 1900 /* VC8-VC14: 使用安全版本 */
+/* VC8-VC14：使用 _snprintf_s 消除 C4996 警告 */
+#define snprintf(buf, size, fmt, ...)                                          \
+  _snprintf_s(buf, size, _TRUNCATE, fmt, ##__VA_ARGS__)
+#elif _MSC_VER < 1400 /* VC6-VC7.1: 使用 _snprintf */
+#define snprintf _snprintf
 #endif
 /* VS2015+ 已内置标准 snprintf */
 
 /* vsnprintf 在 VC9+ 已经存在，只为 VC6-VC8 定义 */
-#if _MSC_VER < 1500  /* VC9之前 */
+#if _MSC_VER < 1500 /* VC9之前 */
 #define vsnprintf _vsnprintf
 #endif
 #else
@@ -203,7 +205,6 @@ EZCTEST_DISABLE_UNUSED_FUNCTION_BEGIN
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
 
 /* 对于非STM32平台，包含更多系统头文件 */
 #ifndef EZCTEST_STM32_MODE
@@ -269,8 +270,8 @@ WINBASEAPI BOOL WINAPI IsDebuggerPresent(VOID);
 /* C++标准库（用于异常处理和值格式化） */
 #ifdef __cplusplus
 #include <exception>
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #endif
 
@@ -281,7 +282,7 @@ WINBASEAPI BOOL WINAPI IsDebuggerPresent(VOID);
 /**
  * @brief 检测C11 _Generic支持
  */
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && \
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L &&                \
     !defined(EZCTEST_NO_GENERIC)
 #define EZCTEST_HAS_GENERIC 1
 #endif
@@ -371,11 +372,11 @@ typedef struct {
 typedef void (*ezctest_func_t)(void);
 
 typedef struct {
-  const char *suite_name; /* 测试套件名称 */
-  const char *test_name;  /* 测试用例名称 */
+  const char *suite_name;   /* 测试套件名称 */
+  const char *test_name;    /* 测试用例名称 */
   ezctest_func_t test_func; /* 测试函数指针 */
-  int enabled;            /* 是否启用 */
-  int failed;             /* 本轮测试是否失败 */
+  int enabled;              /* 是否启用 */
+  int failed;               /* 本轮测试是否失败 */
 } ezctest_info_t;
 
 /* ============================================================================
@@ -429,7 +430,7 @@ typedef struct {
   const char *suite_name;
   ezctest_setup_func_t setup;
   ezctest_teardown_func_t teardown;
-  int is_setup;  /* 1=setup, 0=teardown */
+  int is_setup; /* 1=setup, 0=teardown */
 } ezctest_fixture_metadata_t;
 #endif
 
@@ -473,7 +474,7 @@ typedef struct {
  * @return 注册成功返回1，失败返回0
  */
 EZCTEST_API int ezctest_register(const char *suite_name, const char *test_name,
-                                ezctest_func_t test_func);
+                                 ezctest_func_t test_func);
 
 /**
  * @brief 注册测试套件的Setup函数
@@ -482,7 +483,7 @@ EZCTEST_API int ezctest_register(const char *suite_name, const char *test_name,
  * @return 注册成功返回1，失败返回0
  */
 EZCTEST_API int ezctest_register_setup(const char *suite_name,
-                                      ezctest_setup_func_t setup);
+                                       ezctest_setup_func_t setup);
 
 /**
  * @brief 注册测试套件的Teardown函数
@@ -491,7 +492,7 @@ EZCTEST_API int ezctest_register_setup(const char *suite_name,
  * @return 注册成功返回1，失败返回0
  */
 EZCTEST_API int ezctest_register_teardown(const char *suite_name,
-                                         ezctest_teardown_func_t teardown);
+                                          ezctest_teardown_func_t teardown);
 
 /**
  * @brief 添加DEFER清理回调
@@ -523,7 +524,8 @@ int g_ezctest_count = 0;
 int g_ezctest_current_failed = 0;
 int g_ezctest_current_assertion_failed = 0;
 ezctest_result_t g_ezctest_result = {0, 0, 0, 0, 0};
-ezctest_config_t g_ezctest_config = {NULL, 1, 0, -1, 0, -1}; /* 增加no_exec=-1 */
+ezctest_config_t g_ezctest_config = {NULL, 1, 0,
+                                     -1,   0, -1}; /* 增加no_exec=-1 */
 int g_ezctest_color_enabled = -1;
 ezctest_fixture_t g_ezctest_fixtures[EZCTEST_MAX_FIXTURES];
 int g_ezctest_fixture_count = 0;
@@ -575,7 +577,7 @@ extern int g_ezctest_scanned;
 #ifdef EZCTEST_IMPLEMENTATION
 
 int ezctest_register(const char *suite_name, const char *test_name,
-                   ezctest_func_t test_func) {
+                     ezctest_func_t test_func) {
   if (g_ezctest_count >= EZCTEST_MAX_TESTS) {
     fprintf(stderr, "Error: Maximum number of tests (%d) exceeded\n",
             EZCTEST_MAX_TESTS);
@@ -618,7 +620,7 @@ int ezctest_register_setup(const char *suite_name, ezctest_setup_func_t setup) {
 }
 
 int ezctest_register_teardown(const char *suite_name,
-                            ezctest_teardown_func_t teardown) {
+                              ezctest_teardown_func_t teardown) {
   int i;
 
   /* 查找是否已存在该suite */
@@ -723,7 +725,7 @@ static int ezctest_wildcard_match(const char *pattern, const char *str) {
  * @return 匹配返回1，不匹配返回0
  */
 static int ezctest_matches_filter(const char *suite_name, const char *test_name,
-                                const char *filter) {
+                                  const char *filter) {
   char full_name[EZCTEST_MAX_NAME_LENGTH * 2];
 
   if (!filter || filter[0] == '\0') {
@@ -738,7 +740,7 @@ static int ezctest_matches_filter(const char *suite_name, const char *test_name,
     char filter_copy[EZCTEST_MAX_NAME_LENGTH * 4];
     char *token;
     char *rest;
-#if defined(_MSC_VER) && _MSC_VER >= 1400  /* VC8+ 使用安全版本 */
+#if defined(_MSC_VER) && _MSC_VER >= 1400 /* VC8+ 使用安全版本 */
     char *context = NULL;
 #endif
 
@@ -796,6 +798,11 @@ static void ezctest_run_test(const ezctest_info_t *test);
 /* ============================================================================
  * 函数实现
  * ========================================================================== */
+#if defined(EZCTEST_PLATFORM_WINDOWS) &&                                       \
+    (defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0A00) &&                       \
+    !defined(ENABLE_VIRTUAL_TERMINAL_PROCESSING)
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif
 
 static int ezctest_should_use_color(void) {
   if (g_ezctest_config.color == 0) {
@@ -937,7 +944,8 @@ static void ezctest_reset_color(void) {
  * 彩色打印辅助函数
  * ========================================================================== */
 
-static void ezctest_printf_colored(ezctest_color_t color, const char *format, ...) {
+static void ezctest_printf_colored(ezctest_color_t color, const char *format,
+                                   ...) {
   va_list args;
   ezctest_set_color(color);
   va_start(args, format);
@@ -953,23 +961,24 @@ static void ezctest_printf_colored(ezctest_color_t color, const char *format, ..
 /* VC6 兼容性：IsDebuggerPresent 在旧版 SDK 中不存在，需要手动声明 */
 #if defined(_MSC_VER) && _MSC_VER < 1300 && defined(EZCTEST_PLATFORM_WINDOWS)
 /* 为 VC6 提供 IsDebuggerPresent 函数声明（来自 kernel32.dll） */
-typedef int (WINAPI *IsDebuggerPresentFunc)(void);
+typedef int(WINAPI *IsDebuggerPresentFunc)(void);
 
 static int ezctest_is_debugger_present_vc6(void) {
   HMODULE hKernel32;
   IsDebuggerPresentFunc pIsDebuggerPresent;
-  
+
   /* 动态加载 kernel32.dll 中的 IsDebuggerPresent 函数 */
   hKernel32 = GetModuleHandleA("kernel32.dll");
   if (!hKernel32) {
     return 0; /* 无法获取 kernel32.dll 句柄 */
   }
-  
-  pIsDebuggerPresent = (IsDebuggerPresentFunc)GetProcAddress(hKernel32, "IsDebuggerPresent");
+
+  pIsDebuggerPresent =
+      (IsDebuggerPresentFunc)GetProcAddress(hKernel32, "IsDebuggerPresent");
   if (!pIsDebuggerPresent) {
     return 0; /* IsDebuggerPresent 不可用（Windows 95/98/NT 4.0） */
   }
-  
+
   return pIsDebuggerPresent() ? 1 : 0;
 }
 #endif
@@ -1000,14 +1009,14 @@ static int ezctest_under_debugger(void) {
   }
   return 0;
 #elif defined(EZCTEST_PLATFORM_WINDOWS)
-  /* Windows: 使用IsDebuggerPresent API */
-  #if defined(_MSC_VER) && _MSC_VER < 1300
-    /* VC6: 动态加载 IsDebuggerPresent */
-    return ezctest_is_debugger_present_vc6();
-  #else
-    /* VC7+ 和 MinGW: 直接调用 IsDebuggerPresent */
-    return IsDebuggerPresent() ? 1 : 0;
-  #endif
+/* Windows: 使用IsDebuggerPresent API */
+#if defined(_MSC_VER) && _MSC_VER < 1300
+  /* VC6: 动态加载 IsDebuggerPresent */
+  return ezctest_is_debugger_present_vc6();
+#else
+  /* VC7+ 和 MinGW: 直接调用 IsDebuggerPresent */
+  return IsDebuggerPresent() ? 1 : 0;
+#endif
 #else
   return 0;
 #endif
@@ -1126,9 +1135,9 @@ static int ezctest_exec_child(const ezctest_info_t *test, int test_index) {
 
     /* 添加颜色参数 */
     if (g_ezctest_config.color >= 0 && cmd_len < (int)sizeof(cmd_line) - 30) {
-      cmd_len +=
-          snprintf(cmd_line + cmd_len, sizeof(cmd_line) - cmd_len,
-                   " --ezctest_color=%s", g_ezctest_config.color ? "yes" : "no");
+      cmd_len += snprintf(cmd_line + cmd_len, sizeof(cmd_line) - cmd_len,
+                          " --ezctest_color=%s",
+                          g_ezctest_config.color ? "yes" : "no");
     }
 
     /* 创建子进程，继承stdout/stderr */
@@ -1262,7 +1271,8 @@ static int ezctest_double_eq(double a, double b, double epsilon) {
  * - 实现仅在定义了 EZCTEST_IMPLEMENTATION 的编译单元中提供
  */
 EZCTEST_API void ezctest_assertion_failed(const char *file, int line,
-                                         int is_fatal, const char *format, ...);
+                                          int is_fatal, const char *format,
+                                          ...);
 
 /**
  * @brief 断言成功处理
@@ -1274,7 +1284,7 @@ EZCTEST_API void ezctest_assertion_passed(void);
 #ifdef EZCTEST_IMPLEMENTATION
 
 void ezctest_assertion_failed(const char *file, int line, int is_fatal,
-                            const char *format, ...) {
+                              const char *format, ...) {
   va_list args;
 
   g_ezctest_result.total_assertions++;
@@ -1424,8 +1434,9 @@ static int ezctest_run_with_cpp_exception(void (*test_func)(void)) {
  * @param fixture Fixture信息
  * @return 是否有异常（0=无异常，1=有异常）
  */
-static int ezctest_run_test_with_exception_guard(const ezctest_info_t *test,
-                                               const ezctest_fixture_t *fixture) {
+static int
+ezctest_run_test_with_exception_guard(const ezctest_info_t *test,
+                                      const ezctest_fixture_t *fixture) {
   int has_exception = 0;
 
   /* 设置longjmp跳转点 */
@@ -1612,8 +1623,8 @@ static int ezctest_worker_mode(int worker_index) {
     }
 
     if (!ezctest_matches_filter(g_ezctest_registry[i].suite_name,
-                              g_ezctest_registry[i].test_name,
-                              g_ezctest_config.filter)) {
+                                g_ezctest_registry[i].test_name,
+                                g_ezctest_config.filter)) {
       continue;
     }
 
@@ -1654,7 +1665,7 @@ static void ezctest_list_tests(void) {
     }
 
     if (!ezctest_matches_filter(test->suite_name, test->test_name,
-                              g_ezctest_config.filter)) {
+                                g_ezctest_config.filter)) {
       continue;
     }
 
@@ -1681,7 +1692,7 @@ static void ezctest_scan_tests_in_memory(void) {
   int count = 0;
   int regions_scanned = 0;
   /* x64使用8字节对齐，x86使用4字节对齐 */
-  const size_t alignment = sizeof(void*);
+  const size_t alignment = sizeof(void *);
 
   if (g_ezctest_scanned) {
     return; /* 已扫描 */
@@ -1693,11 +1704,11 @@ static void ezctest_scan_tests_in_memory(void) {
   addr = (unsigned char *)GetModuleHandle(NULL);
 
 #ifdef EZCTEST_DEBUG_SCAN
-  fprintf(stderr, "DEBUG: Starting memory scan (alignment=%d, ptr_size=%d)\n", 
-          (int)alignment, (int)sizeof(void*));
-  fprintf(stderr, "DEBUG: Module base address: %p\n", (void*)addr);
+  fprintf(stderr, "DEBUG: Starting memory scan (alignment=%d, ptr_size=%d)\n",
+          (int)alignment, (int)sizeof(void *));
+  fprintf(stderr, "DEBUG: Module base address: %p\n", (void *)addr);
   fprintf(stderr, "DEBUG: EZCTEST_MAGIC = 0x%08X\n", EZCTEST_MAGIC);
-  fprintf(stderr, "DEBUG: sizeof(ezctest_metadata_t) = %d\n", 
+  fprintf(stderr, "DEBUG: sizeof(ezctest_metadata_t) = %d\n",
           (int)sizeof(ezctest_metadata_t));
 #endif
 
@@ -1715,23 +1726,23 @@ static void ezctest_scan_tests_in_memory(void) {
 #ifdef EZCTEST_DEBUG_SCAN
       if (regions_scanned <= 10) {
         fprintf(stderr, "DEBUG: Scanning region %d: %p - %p (size=%lu)\n",
-                regions_scanned, mbi.BaseAddress, (void*)end_addr, 
+                regions_scanned, mbi.BaseAddress, (void *)end_addr,
                 (unsigned long)mbi.RegionSize);
       }
 #endif
 
       /* 在这个内存区域中查找 magic number */
       for (addr = (unsigned char *)mbi.BaseAddress;
-           addr < end_addr - sizeof(ezctest_metadata_t);
-           addr += alignment) {
+           addr < end_addr - sizeof(ezctest_metadata_t); addr += alignment) {
 
         ezctest_metadata_t *meta = (ezctest_metadata_t *)addr;
-        ezctest_fixture_metadata_t *fixture_meta = (ezctest_fixture_metadata_t *)addr;
+        ezctest_fixture_metadata_t *fixture_meta =
+            (ezctest_fixture_metadata_t *)addr;
 
         /* 检查测试用例 magic number */
         if (meta->magic == EZCTEST_MAGIC) {
 #ifdef EZCTEST_DEBUG_SCAN
-          fprintf(stderr, "DEBUG: Found magic at %p\n", (void*)addr);
+          fprintf(stderr, "DEBUG: Found magic at %p\n", (void *)addr);
 #endif
           /* 验证数据有效性 */
           __try {
@@ -1756,7 +1767,7 @@ static void ezctest_scan_tests_in_memory(void) {
           } __except (EXCEPTION_EXECUTE_HANDLER) {
             /* 忽略无效指针 */
 #ifdef EZCTEST_DEBUG_SCAN
-            fprintf(stderr, "DEBUG: Invalid pointer at %p\n", (void*)addr);
+            fprintf(stderr, "DEBUG: Invalid pointer at %p\n", (void *)addr);
 #endif
           }
         }
@@ -1766,12 +1777,15 @@ static void ezctest_scan_tests_in_memory(void) {
             if (fixture_meta->suite_name != NULL &&
                 strlen(fixture_meta->suite_name) > 0 &&
                 strlen(fixture_meta->suite_name) < 100) {
-              
+
               /* 注册SETUP或TEARDOWN */
               if (fixture_meta->is_setup && fixture_meta->setup != NULL) {
-                ezctest_register_setup(fixture_meta->suite_name, fixture_meta->setup);
-              } else if (!fixture_meta->is_setup && fixture_meta->teardown != NULL) {
-                ezctest_register_teardown(fixture_meta->suite_name, fixture_meta->teardown);
+                ezctest_register_setup(fixture_meta->suite_name,
+                                       fixture_meta->setup);
+              } else if (!fixture_meta->is_setup &&
+                         fixture_meta->teardown != NULL) {
+                ezctest_register_teardown(fixture_meta->suite_name,
+                                          fixture_meta->teardown);
               }
             }
           } __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -1787,7 +1801,7 @@ static void ezctest_scan_tests_in_memory(void) {
     /* 防止无限循环和溢出 */
     if (addr <= (unsigned char *)mbi.BaseAddress)
       break;
-    
+
     /* x64地址空间检查：防止超过用户态地址空间 */
 #ifdef _WIN64
     /* x64: 用户态地址空间最大约 0x00007FFFFFFFFFFF (128TB) */
@@ -1823,8 +1837,8 @@ static int ezctest_run_all_tests_internal(void) {
   for (i = 0; i < g_ezctest_count; i++) {
     if (g_ezctest_registry[i].enabled &&
         ezctest_matches_filter(g_ezctest_registry[i].suite_name,
-                             g_ezctest_registry[i].test_name,
-                             g_ezctest_config.filter)) {
+                               g_ezctest_registry[i].test_name,
+                               g_ezctest_config.filter)) {
       enabled_count++;
     }
   }
@@ -1903,7 +1917,7 @@ static int ezctest_run_all_tests_internal(void) {
       }
 
       if (!ezctest_matches_filter(test->suite_name, test->test_name,
-                                g_ezctest_config.filter)) {
+                                  g_ezctest_config.filter)) {
         continue;
       }
 
@@ -2038,7 +2052,8 @@ static int ezctest_run_all_tests_internal(void) {
   } else {
     printf("\nAssertions: %d total, %d passed, %d failed\n",
            g_ezctest_result.total_assertions,
-           g_ezctest_result.total_assertions - g_ezctest_result.failed_assertions,
+           g_ezctest_result.total_assertions -
+               g_ezctest_result.failed_assertions,
            g_ezctest_result.failed_assertions);
   }
 
@@ -2068,11 +2083,11 @@ static void ezctest_stm32_interactive_loop(void) {
 
   printf("\n");
   ezctest_printf_colored(EZCTEST_COLOR_CYAN,
-                       "===========================================\n");
+                         "===========================================\n");
   ezctest_printf_colored(EZCTEST_COLOR_CYAN,
-                       "  CTest Interactive Mode (STM32)\n");
+                         "  CTest Interactive Mode (STM32)\n");
   ezctest_printf_colored(EZCTEST_COLOR_CYAN,
-                       "===========================================\n");
+                         "===========================================\n");
   printf("\nCommands:\n");
   printf("  run [filter]    Run tests (optional filter)\n");
   printf("  list            List all tests\n");
@@ -2228,18 +2243,18 @@ int ezctest_run_all_tests(int argc, char *argv[]) {
  * @param argc 命令行参数个数
  * @param wargv 宽字符命令行参数数组
  * @return 测试通过返回0，失败返回1
- * 
+ *
  * @details
  * 用于Windows平台的Unicode版本main函数（wmain或_tmain）。
  * 该函数将宽字符参数转换为多字节字符串，然后调用标准版本的测试框架。
- * 
+ *
  * 使用示例：
  * @code
  * // Unicode版本
  * int wmain(int argc, wchar_t* argv[]) {
  *     return RUN_ALL_TESTS_W(argc, argv);
  * }
- * 
+ *
  * // TCHAR版本（根据_UNICODE自动选择）
  * int _tmain(int argc, TCHAR* argv[]) {
  *     return RUN_ALL_TESTS_T(argc, argv);
@@ -2254,24 +2269,24 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
   char **argv = NULL;
   int result;
   int i;
-  
+
   /* 分配char*数组 */
   if (argc > 0 && wargv != NULL) {
-    argv = (char**)malloc(sizeof(char*) * (size_t)argc);
+    argv = (char **)malloc(sizeof(char *) * (size_t)argc);
     if (argv == NULL) {
       return 1;
     }
-    
+
     /* 初始化为NULL，便于清理 */
     for (i = 0; i < argc; i++) {
       argv[i] = NULL;
     }
-    
+
     /* 转换每个宽字符参数为多字节字符 */
     for (i = 0; i < argc; i++) {
       if (wargv[i] != NULL) {
         size_t len;
-        
+
         /* 计算所需缓冲区大小 */
 #if defined(_MSC_VER) && _MSC_VER >= 1400 /* VC8+ */
         size_t converted;
@@ -2302,9 +2317,9 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
         }
         len++; /* 包含空终止符 */
 #endif
-        
+
         /* 分配缓冲区 */
-        argv[i] = (char*)malloc(len);
+        argv[i] = (char *)malloc(len);
         if (argv[i] == NULL) {
           /* 内存分配失败，清理并返回 */
           int j;
@@ -2316,7 +2331,7 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
           free(argv);
           return 1;
         }
-        
+
         /* 执行转换 */
 #if defined(_MSC_VER) && _MSC_VER >= 1400 /* VC8+ */
         {
@@ -2339,10 +2354,10 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
       }
     }
   }
-  
+
   /* 调用标准版本的函数 */
   result = ezctest_run_all_tests(argc, argv);
-  
+
   /* 释放内存 */
   if (argv != NULL) {
     for (i = 0; i < argc; i++) {
@@ -2352,7 +2367,7 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
     }
     free(argv);
   }
-  
+
   return result;
 }
 
@@ -2363,7 +2378,7 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
  * @param argc 命令行参数个数
  * @param argv 宽字符命令行参数数组
  * @return 测试通过返回0，失败返回1
- * 
+ *
  * @details
  * 此宏显式使用宽字符版本，适用于明确需要 wmain 的场景。
  * 通常情况下，建议直接使用 RUN_ALL_TESTS，它会自动根据 _UNICODE 宏选择。
@@ -2375,7 +2390,7 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
  * @param argc 命令行参数个数
  * @param argv TCHAR类型命令行参数数组
  * @return 测试通过返回0，失败返回1
- * 
+ *
  * @details
  * 此宏是 RUN_ALL_TESTS 的别名，保留用于显式表明使用 TCHAR 类型。
  * 推荐直接使用 RUN_ALL_TESTS，效果相同。
@@ -2416,45 +2431,44 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #if defined(_MSC_VER)
 /* MSVC所有版本: 生成包含 magic number 的元数据，使用内存扫描机制 */
 #define TEST(suite_name, test_name)                                            \
-  static void ezctest_##suite_name##_##test_name##_func(void);                   \
-  static const ezctest_metadata_t ezctest_##suite_name##_##test_name##_meta = {    \
-      EZCTEST_MAGIC,                                                          \
-      {#suite_name, #test_name, ezctest_##suite_name##_##test_name##_func, 1,    \
-       0}};                                                                    \
-  static volatile const void *ezctest_keep_##suite_name##_##test_name##_meta =     \
-      &ezctest_##suite_name##_##test_name##_meta;                                \
+  static void ezctest_##suite_name##_##test_name##_func(void);                 \
+  static const ezctest_metadata_t ezctest_##suite_name##_##test_name##_meta =  \
+      {EZCTEST_MAGIC,                                                          \
+       {#suite_name, #test_name, ezctest_##suite_name##_##test_name##_func, 1, \
+        0}};                                                                   \
+  static volatile const void *ezctest_keep_##suite_name##_##test_name##_meta = \
+      &ezctest_##suite_name##_##test_name##_meta;                              \
   static void ezctest_##suite_name##_##test_name##_func(void)
 #elif defined(EZCTEST_GCC_NO_CONSTRUCTOR)
 /* 老版本GCC: 使用.ctors段实现自动注册 */
 #define TEST(suite_name, test_name)                                            \
-  static void ezctest_##suite_name##_##test_name##_func(void);                   \
-  static void ezctest_##suite_name##_##test_name##_register(void) {              \
+  static void ezctest_##suite_name##_##test_name##_func(void);                 \
+  static void ezctest_##suite_name##_##test_name##_register(void) {            \
     ezctest_register(#suite_name, #test_name,                                  \
-                   ezctest_##suite_name##_##test_name##_func);                 \
+                     ezctest_##suite_name##_##test_name##_func);               \
   }                                                                            \
-  static void (*ezctest_##suite_name##_##test_name##_ctor_ptr)(void)             \
-      __attribute__((section(".ctors"), used)) =                              \
-      ezctest_##suite_name##_##test_name##_register;                            \
+  static void (*ezctest_##suite_name##_##test_name##_ctor_ptr)(void)           \
+      __attribute__((section(".ctors"), used)) =                               \
+          ezctest_##suite_name##_##test_name##_register;                       \
   static void ezctest_##suite_name##_##test_name##_func(void)
 #else
 /* 现代GCC/Clang: 使用 constructor 属性自动注册 */
 #define TEST(suite_name, test_name)                                            \
-  static void ezctest_##suite_name##_##test_name##_func(void);                   \
-  static int ezctest_##suite_name##_##test_name##_registered = 0;                \
-  static void ezctest_##suite_name##_##test_name##_register(void) {              \
-    if (!ezctest_##suite_name##_##test_name##_registered) {                      \
-      ezctest_register(#suite_name, #test_name,                                  \
-                     ezctest_##suite_name##_##test_name##_func);                 \
-      ezctest_##suite_name##_##test_name##_registered = 1;                       \
+  static void ezctest_##suite_name##_##test_name##_func(void);                 \
+  static int ezctest_##suite_name##_##test_name##_registered = 0;              \
+  static void ezctest_##suite_name##_##test_name##_register(void) {            \
+    if (!ezctest_##suite_name##_##test_name##_registered) {                    \
+      ezctest_register(#suite_name, #test_name,                                \
+                       ezctest_##suite_name##_##test_name##_func);             \
+      ezctest_##suite_name##_##test_name##_registered = 1;                     \
     }                                                                          \
   }                                                                            \
   static void __attribute__((constructor))                                     \
-  ezctest_##suite_name##_##test_name##_init(void) {                              \
-    ezctest_##suite_name##_##test_name##_register();                             \
+  ezctest_##suite_name##_##test_name##_init(void) {                            \
+    ezctest_##suite_name##_##test_name##_register();                           \
   }                                                                            \
   static void ezctest_##suite_name##_##test_name##_func(void)
 #endif
-
 
 /* ============================================================================
  * 宏定义 - EXPECT断言（非致命）
@@ -2463,138 +2477,140 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #define EXPECT_TRUE(condition)                                                 \
   do {                                                                         \
     if (condition) {                                                           \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 0,                            \
-                             "Expected: (%s) is true\n  Actual: false",        \
-                             #condition);                                      \
+      ezctest_assertion_failed(__FILE__, __LINE__, 0,                          \
+                               "Expected: (%s) is true\n  Actual: false",      \
+                               #condition);                                    \
     }                                                                          \
   } while (0)
 
 #define EXPECT_FALSE(condition)                                                \
   do {                                                                         \
     if (!(condition)) {                                                        \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 0,                            \
-                             "Expected: (%s) is false\n  Actual: true",        \
-                             #condition);                                      \
+      ezctest_assertion_failed(__FILE__, __LINE__, 0,                          \
+                               "Expected: (%s) is false\n  Actual: true",      \
+                               #condition);                                    \
     }                                                                          \
   } while (0)
 
 #define EXPECT_EQ(val1, val2)                                                  \
   do {                                                                         \
     if ((val1) == (val2)) {                                                    \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                          \
-      EZCTEST_FORMAT_VALUES("==", val1, val2, ezctest_msg_buf,                  \
+      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                        \
+      EZCTEST_FORMAT_VALUES("==", val1, val2, ezctest_msg_buf,                 \
                             EZCTEST_MAX_MESSAGE_LENGTH);                       \
-      ezctest_assertion_failed(__FILE__, __LINE__, 0, "%s", ezctest_msg_buf);    \
+      ezctest_assertion_failed(__FILE__, __LINE__, 0, "%s", ezctest_msg_buf);  \
     }                                                                          \
   } while (0)
 
 #define EXPECT_NE(val1, val2)                                                  \
   do {                                                                         \
     if ((val1) != (val2)) {                                                    \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                          \
-      EZCTEST_FORMAT_VALUES("!=", val1, val2, ezctest_msg_buf,                  \
+      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                        \
+      EZCTEST_FORMAT_VALUES("!=", val1, val2, ezctest_msg_buf,                 \
                             EZCTEST_MAX_MESSAGE_LENGTH);                       \
-      ezctest_assertion_failed(__FILE__, __LINE__, 0, "%s", ezctest_msg_buf);    \
+      ezctest_assertion_failed(__FILE__, __LINE__, 0, "%s", ezctest_msg_buf);  \
     }                                                                          \
   } while (0)
 
 #define EXPECT_LT(val1, val2)                                                  \
   do {                                                                         \
     if ((val1) < (val2)) {                                                     \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                          \
-      EZCTEST_FORMAT_VALUES("<", val1, val2, ezctest_msg_buf,                   \
+      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                        \
+      EZCTEST_FORMAT_VALUES("<", val1, val2, ezctest_msg_buf,                  \
                             EZCTEST_MAX_MESSAGE_LENGTH);                       \
-      ezctest_assertion_failed(__FILE__, __LINE__, 0, "%s", ezctest_msg_buf);    \
+      ezctest_assertion_failed(__FILE__, __LINE__, 0, "%s", ezctest_msg_buf);  \
     }                                                                          \
   } while (0)
 
 #define EXPECT_LE(val1, val2)                                                  \
   do {                                                                         \
     if ((val1) <= (val2)) {                                                    \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                          \
-      EZCTEST_FORMAT_VALUES("<=", val1, val2, ezctest_msg_buf,                  \
+      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                        \
+      EZCTEST_FORMAT_VALUES("<=", val1, val2, ezctest_msg_buf,                 \
                             EZCTEST_MAX_MESSAGE_LENGTH);                       \
-      ezctest_assertion_failed(__FILE__, __LINE__, 0, "%s", ezctest_msg_buf);    \
+      ezctest_assertion_failed(__FILE__, __LINE__, 0, "%s", ezctest_msg_buf);  \
     }                                                                          \
   } while (0)
 
 #define EXPECT_GT(val1, val2)                                                  \
   do {                                                                         \
     if ((val1) > (val2)) {                                                     \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                          \
-      EZCTEST_FORMAT_VALUES(">", val1, val2, ezctest_msg_buf,                   \
+      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                        \
+      EZCTEST_FORMAT_VALUES(">", val1, val2, ezctest_msg_buf,                  \
                             EZCTEST_MAX_MESSAGE_LENGTH);                       \
-      ezctest_assertion_failed(__FILE__, __LINE__, 0, "%s", ezctest_msg_buf);    \
+      ezctest_assertion_failed(__FILE__, __LINE__, 0, "%s", ezctest_msg_buf);  \
     }                                                                          \
   } while (0)
 
 #define EXPECT_GE(val1, val2)                                                  \
   do {                                                                         \
     if ((val1) >= (val2)) {                                                    \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                          \
-      EZCTEST_FORMAT_VALUES(">=", val1, val2, ezctest_msg_buf,                  \
+      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                        \
+      EZCTEST_FORMAT_VALUES(">=", val1, val2, ezctest_msg_buf,                 \
                             EZCTEST_MAX_MESSAGE_LENGTH);                       \
-      ezctest_assertion_failed(__FILE__, __LINE__, 0, "%s", ezctest_msg_buf);    \
+      ezctest_assertion_failed(__FILE__, __LINE__, 0, "%s", ezctest_msg_buf);  \
     }                                                                          \
   } while (0)
 
 #define EXPECT_STREQ(str1, str2)                                               \
   do {                                                                         \
     if (strcmp((str1), (str2)) == 0) {                                         \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 0,                            \
-                             "Expected: %s == %s\n  Actual: \"%s\" != \"%s\"", \
-                             #str1, #str2, (str1), (str2));                    \
+      ezctest_assertion_failed(                                                \
+          __FILE__, __LINE__, 0,                                               \
+          "Expected: %s == %s\n  Actual: \"%s\" != \"%s\"", #str1, #str2,      \
+          (str1), (str2));                                                     \
     }                                                                          \
   } while (0)
 
 #define EXPECT_STRNE(str1, str2)                                               \
   do {                                                                         \
     if (strcmp((str1), (str2)) != 0) {                                         \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 0,                            \
-                             "Expected: %s != %s\n  Actual: both are \"%s\"",  \
-                             #str1, #str2, (str1));                            \
+      ezctest_assertion_failed(                                                \
+          __FILE__, __LINE__, 0,                                               \
+          "Expected: %s != %s\n  Actual: both are \"%s\"", #str1, #str2,       \
+          (str1));                                                             \
     }                                                                          \
   } while (0)
 
 #define EXPECT_NULL(ptr)                                                       \
   do {                                                                         \
     if ((ptr) == NULL) {                                                       \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 0,                            \
-                             "Expected: %s is NULL\n  Actual: not NULL",       \
-                             #ptr);                                            \
+      ezctest_assertion_failed(__FILE__, __LINE__, 0,                          \
+                               "Expected: %s is NULL\n  Actual: not NULL",     \
+                               #ptr);                                          \
     }                                                                          \
   } while (0)
 
 #define EXPECT_NOT_NULL(ptr)                                                   \
   do {                                                                         \
     if ((ptr) != NULL) {                                                       \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 0,                            \
-                             "Expected: %s is not NULL\n  Actual: NULL",       \
-                             #ptr);                                            \
+      ezctest_assertion_failed(__FILE__, __LINE__, 0,                          \
+                               "Expected: %s is not NULL\n  Actual: NULL",     \
+                               #ptr);                                          \
     }                                                                          \
   } while (0)
 
@@ -2609,10 +2625,10 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
       }                                                                        \
     }                                                                          \
     if (is_empty) {                                                            \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 0,                            \
-                             "Expected: %s is not empty\n", #ptr);             \
+      ezctest_assertion_failed(__FILE__, __LINE__, 0,                          \
+                               "Expected: %s is not empty\n", #ptr);           \
     }                                                                          \
   } while (0)
 
@@ -2627,10 +2643,10 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
       }                                                                        \
     }                                                                          \
     if (!is_empty) {                                                           \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 0, "Expected: %s is empty\n", \
-                             #ptr);                                            \
+      ezctest_assertion_failed(__FILE__, __LINE__, 0,                          \
+                               "Expected: %s is empty\n", #ptr);               \
     }                                                                          \
   } while (0)
 
@@ -2640,49 +2656,50 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 
 #define EXPECT_FLOAT_EQ(val1, val2)                                            \
   do {                                                                         \
-    float ezctest_v1 = (float)(val1);                                            \
-    float ezctest_v2 = (float)(val2);                                            \
-    if (ezctest_float_eq(ezctest_v1, ezctest_v2, 1e-6f)) {                           \
-      ezctest_assertion_passed();                                                \
+    float ezctest_v1 = (float)(val1);                                          \
+    float ezctest_v2 = (float)(val2);                                          \
+    if (ezctest_float_eq(ezctest_v1, ezctest_v2, 1e-6f)) {                     \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(                                                  \
+      ezctest_assertion_failed(                                                \
           __FILE__, __LINE__, 0,                                               \
           "Expected: %s == %s (float)\n  Actual: %g vs %g (diff: %g)", #val1,  \
-          #val2, (double)ezctest_v1, (double)ezctest_v2,                           \
-          (double)(ezctest_v1 - ezctest_v2));                                      \
+          #val2, (double)ezctest_v1, (double)ezctest_v2,                       \
+          (double)(ezctest_v1 - ezctest_v2));                                  \
     }                                                                          \
   } while (0)
 
 #define EXPECT_DOUBLE_EQ(val1, val2)                                           \
   do {                                                                         \
-    double ezctest_v1 = (double)(val1);                                          \
-    double ezctest_v2 = (double)(val2);                                          \
-    if (ezctest_double_eq(ezctest_v1, ezctest_v2, 1e-10)) {                          \
-      ezctest_assertion_passed();                                                \
+    double ezctest_v1 = (double)(val1);                                        \
+    double ezctest_v2 = (double)(val2);                                        \
+    if (ezctest_double_eq(ezctest_v1, ezctest_v2, 1e-10)) {                    \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 0,                            \
-                             "Expected: %s == %s (double)\n  Actual: %.15g "   \
-                             "vs %.15g (diff: %.15g)",                         \
-                             #val1, #val2, ezctest_v1, ezctest_v2,                 \
-                             (ezctest_v1 - ezctest_v2));                           \
+      ezctest_assertion_failed(__FILE__, __LINE__, 0,                          \
+                               "Expected: %s == %s (double)\n  Actual: %.15g " \
+                               "vs %.15g (diff: %.15g)",                       \
+                               #val1, #val2, ezctest_v1, ezctest_v2,           \
+                               (ezctest_v1 - ezctest_v2));                     \
     }                                                                          \
   } while (0)
 
 #define EXPECT_NEAR(val1, val2, epsilon)                                       \
   do {                                                                         \
-    double ezctest_v1 = (double)(val1);                                          \
-    double ezctest_v2 = (double)(val2);                                          \
-    double ezctest_eps = (double)(epsilon);                                      \
-    if (ezctest_double_eq(ezctest_v1, ezctest_v2, ezctest_eps)) {                      \
-      ezctest_assertion_passed();                                                \
+    double ezctest_v1 = (double)(val1);                                        \
+    double ezctest_v2 = (double)(val2);                                        \
+    double ezctest_eps = (double)(epsilon);                                    \
+    if (ezctest_double_eq(ezctest_v1, ezctest_v2, ezctest_eps)) {              \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(                                                  \
+      ezctest_assertion_failed(                                                \
           __FILE__, __LINE__, 0,                                               \
           "Expected: |%s - %s| <= %s\n  Actual: |%.15g - %.15g| = %.15g "      \
           "(epsilon: %.15g)",                                                  \
-          #val1, #val2, #epsilon, ezctest_v1, ezctest_v2,                          \
-          (ezctest_v1 > ezctest_v2 ? ezctest_v1 - ezctest_v2 : ezctest_v2 - ezctest_v1),   \
-          ezctest_eps);                                                          \
+          #val1, #val2, #epsilon, ezctest_v1, ezctest_v2,                      \
+          (ezctest_v1 > ezctest_v2 ? ezctest_v1 - ezctest_v2                   \
+                                   : ezctest_v2 - ezctest_v1),                 \
+          ezctest_eps);                                                        \
     }                                                                          \
   } while (0)
 
@@ -2697,11 +2714,11 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
  * @brief C++版本：格式化两个值的比较结果（支持operator<<重载）
  * @note 任何重载了operator<<的类型都可以自动显示
  */
-#define EZCTEST_FORMAT_VALUES(op, val1, val2, buf, bufsize)                   \
+#define EZCTEST_FORMAT_VALUES(op, val1, val2, buf, bufsize)                    \
   do {                                                                         \
     std::ostringstream ezctest_oss;                                            \
-    ezctest_oss << "Expected: " << #val1 << " " op " " << #val2               \
-                << "\n  Actual: " << (val1) << " vs " << (val2);              \
+    ezctest_oss << "Expected: " << #val1 << " " op " " << #val2                \
+                << "\n  Actual: " << (val1) << " vs " << (val2);               \
     snprintf(buf, bufsize, "%s", ezctest_oss.str().c_str());                   \
   } while (0)
 
@@ -2728,9 +2745,9 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
       float: "%g",                                                             \
       double: "%g",                                                            \
       long double: "%Lg",                                                      \
-      char*: "\"%s\"",                                                         \
-      const char*: "\"%s\"",                                                   \
-      void*: "%p",                                                             \
+      char *: "\"%s\"",                                                        \
+      const char *: "\"%s\"",                                                  \
+      void *: "%p",                                                            \
       default: "%p")
 
 /**
@@ -2750,15 +2767,15 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 /**
  * @brief 格式化两个值的比较结果（带实际值显示）
  */
-#define EZCTEST_FORMAT_VALUES(op, val1, val2, buf, bufsize)                   \
+#define EZCTEST_FORMAT_VALUES(op, val1, val2, buf, bufsize)                    \
   do {                                                                         \
-    const char *fmt1 = EZCTEST_FORMAT_SPEC(val1);                             \
-    const char *fmt2 = EZCTEST_FORMAT_SPEC(val2);                             \
+    const char *fmt1 = EZCTEST_FORMAT_SPEC(val1);                              \
+    const char *fmt2 = EZCTEST_FORMAT_SPEC(val2);                              \
     char fmt_buf[256];                                                         \
     snprintf(fmt_buf, sizeof(fmt_buf),                                         \
-             "Expected: %%s " op " %%s\n  Actual: %s vs %s", fmt1, fmt2);     \
-    snprintf(buf, bufsize, fmt_buf,                                            \
-             #val1, #val2, EZCTEST_VALUE_CAST(val1), EZCTEST_VALUE_CAST(val2)); \
+             "Expected: %%s " op " %%s\n  Actual: %s vs %s", fmt1, fmt2);      \
+    snprintf(buf, bufsize, fmt_buf, #val1, #val2, EZCTEST_VALUE_CAST(val1),    \
+             EZCTEST_VALUE_CAST(val2));                                        \
   } while (0)
 
 #else
@@ -2767,10 +2784,11 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 /**
  * @brief 不支持_Generic时的回退版本（只显示表达式）
  */
-#define EZCTEST_FORMAT_VALUES(op, val1, val2, buf, bufsize)                   \
+#define EZCTEST_FORMAT_VALUES(op, val1, val2, buf, bufsize)                    \
   do {                                                                         \
-    snprintf(buf, bufsize, "Expected: %s " op " %s\n  Actual: different values", \
-             #val1, #val2);                                                    \
+    snprintf(buf, bufsize,                                                     \
+             "Expected: %s " op " %s\n  Actual: different values", #val1,      \
+             #val2);                                                           \
   } while (0)
 
 #endif
@@ -2782,13 +2800,13 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #define ASSERT_TRUE(condition)                                                 \
   do {                                                                         \
     if (condition) {                                                           \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 1,                            \
-                             "Expected: (%s) is true\n  Actual: false",        \
-                             #condition);                                      \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+      ezctest_assertion_failed(__FILE__, __LINE__, 1,                          \
+                               "Expected: (%s) is true\n  Actual: false",      \
+                               #condition);                                    \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -2797,13 +2815,13 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #define ASSERT_FALSE(condition)                                                \
   do {                                                                         \
     if (!(condition)) {                                                        \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 1,                            \
-                             "Expected: (%s) is false\n  Actual: true",        \
-                             #condition);                                      \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+      ezctest_assertion_failed(__FILE__, __LINE__, 1,                          \
+                               "Expected: (%s) is false\n  Actual: true",      \
+                               #condition);                                    \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -2812,14 +2830,14 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #define ASSERT_EQ(val1, val2)                                                  \
   do {                                                                         \
     if ((val1) == (val2)) {                                                    \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                          \
-      EZCTEST_FORMAT_VALUES("==", val1, val2, ezctest_msg_buf,                  \
+      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                        \
+      EZCTEST_FORMAT_VALUES("==", val1, val2, ezctest_msg_buf,                 \
                             EZCTEST_MAX_MESSAGE_LENGTH);                       \
-      ezctest_assertion_failed(__FILE__, __LINE__, 1, "%s", ezctest_msg_buf);    \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+      ezctest_assertion_failed(__FILE__, __LINE__, 1, "%s", ezctest_msg_buf);  \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -2828,14 +2846,14 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #define ASSERT_NE(val1, val2)                                                  \
   do {                                                                         \
     if ((val1) != (val2)) {                                                    \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                          \
-      EZCTEST_FORMAT_VALUES("!=", val1, val2, ezctest_msg_buf,                  \
+      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                        \
+      EZCTEST_FORMAT_VALUES("!=", val1, val2, ezctest_msg_buf,                 \
                             EZCTEST_MAX_MESSAGE_LENGTH);                       \
-      ezctest_assertion_failed(__FILE__, __LINE__, 1, "%s", ezctest_msg_buf);    \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+      ezctest_assertion_failed(__FILE__, __LINE__, 1, "%s", ezctest_msg_buf);  \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -2844,14 +2862,14 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #define ASSERT_LT(val1, val2)                                                  \
   do {                                                                         \
     if ((val1) < (val2)) {                                                     \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                          \
-      EZCTEST_FORMAT_VALUES("<", val1, val2, ezctest_msg_buf,                   \
+      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                        \
+      EZCTEST_FORMAT_VALUES("<", val1, val2, ezctest_msg_buf,                  \
                             EZCTEST_MAX_MESSAGE_LENGTH);                       \
-      ezctest_assertion_failed(__FILE__, __LINE__, 1, "%s", ezctest_msg_buf);    \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+      ezctest_assertion_failed(__FILE__, __LINE__, 1, "%s", ezctest_msg_buf);  \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -2860,14 +2878,14 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #define ASSERT_LE(val1, val2)                                                  \
   do {                                                                         \
     if ((val1) <= (val2)) {                                                    \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                          \
-      EZCTEST_FORMAT_VALUES("<=", val1, val2, ezctest_msg_buf,                  \
+      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                        \
+      EZCTEST_FORMAT_VALUES("<=", val1, val2, ezctest_msg_buf,                 \
                             EZCTEST_MAX_MESSAGE_LENGTH);                       \
-      ezctest_assertion_failed(__FILE__, __LINE__, 1, "%s", ezctest_msg_buf);    \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+      ezctest_assertion_failed(__FILE__, __LINE__, 1, "%s", ezctest_msg_buf);  \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -2876,14 +2894,14 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #define ASSERT_GT(val1, val2)                                                  \
   do {                                                                         \
     if ((val1) > (val2)) {                                                     \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                          \
-      EZCTEST_FORMAT_VALUES(">", val1, val2, ezctest_msg_buf,                   \
+      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                        \
+      EZCTEST_FORMAT_VALUES(">", val1, val2, ezctest_msg_buf,                  \
                             EZCTEST_MAX_MESSAGE_LENGTH);                       \
-      ezctest_assertion_failed(__FILE__, __LINE__, 1, "%s", ezctest_msg_buf);    \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+      ezctest_assertion_failed(__FILE__, __LINE__, 1, "%s", ezctest_msg_buf);  \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -2892,14 +2910,14 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #define ASSERT_GE(val1, val2)                                                  \
   do {                                                                         \
     if ((val1) >= (val2)) {                                                    \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                          \
-      EZCTEST_FORMAT_VALUES(">=", val1, val2, ezctest_msg_buf,                  \
+      char ezctest_msg_buf[EZCTEST_MAX_MESSAGE_LENGTH];                        \
+      EZCTEST_FORMAT_VALUES(">=", val1, val2, ezctest_msg_buf,                 \
                             EZCTEST_MAX_MESSAGE_LENGTH);                       \
-      ezctest_assertion_failed(__FILE__, __LINE__, 1, "%s", ezctest_msg_buf);    \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+      ezctest_assertion_failed(__FILE__, __LINE__, 1, "%s", ezctest_msg_buf);  \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -2908,13 +2926,14 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #define ASSERT_STREQ(str1, str2)                                               \
   do {                                                                         \
     if (strcmp((str1), (str2)) == 0) {                                         \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 1,                            \
-                             "Expected: %s == %s\n  Actual: \"%s\" != \"%s\"", \
-                             #str1, #str2, (str1), (str2));                    \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+      ezctest_assertion_failed(                                                \
+          __FILE__, __LINE__, 1,                                               \
+          "Expected: %s == %s\n  Actual: \"%s\" != \"%s\"", #str1, #str2,      \
+          (str1), (str2));                                                     \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -2923,13 +2942,14 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #define ASSERT_STRNE(str1, str2)                                               \
   do {                                                                         \
     if (strcmp((str1), (str2)) != 0) {                                         \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 1,                            \
-                             "Expected: %s != %s\n  Actual: both are \"%s\"",  \
-                             #str1, #str2, (str1));                            \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+      ezctest_assertion_failed(                                                \
+          __FILE__, __LINE__, 1,                                               \
+          "Expected: %s != %s\n  Actual: both are \"%s\"", #str1, #str2,       \
+          (str1));                                                             \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -2938,13 +2958,13 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #define ASSERT_NULL(ptr)                                                       \
   do {                                                                         \
     if ((ptr) == NULL) {                                                       \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 1,                            \
-                             "Expected: %s is NULL\n  Actual: not NULL",       \
-                             #ptr);                                            \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+      ezctest_assertion_failed(__FILE__, __LINE__, 1,                          \
+                               "Expected: %s is NULL\n  Actual: not NULL",     \
+                               #ptr);                                          \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -2953,13 +2973,13 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #define ASSERT_NOT_NULL(ptr)                                                   \
   do {                                                                         \
     if ((ptr) != NULL) {                                                       \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 1,                            \
-                             "Expected: %s is not NULL\n  Actual: NULL",       \
-                             #ptr);                                            \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+      ezctest_assertion_failed(__FILE__, __LINE__, 1,                          \
+                               "Expected: %s is not NULL\n  Actual: NULL",     \
+                               #ptr);                                          \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -2971,18 +2991,18 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 
 #define ASSERT_FLOAT_EQ(val1, val2)                                            \
   do {                                                                         \
-    float ezctest_v1 = (float)(val1);                                            \
-    float ezctest_v2 = (float)(val2);                                            \
-    if (ezctest_float_eq(ezctest_v1, ezctest_v2, 1e-6f)) {                           \
-      ezctest_assertion_passed();                                                \
+    float ezctest_v1 = (float)(val1);                                          \
+    float ezctest_v2 = (float)(val2);                                          \
+    if (ezctest_float_eq(ezctest_v1, ezctest_v2, 1e-6f)) {                     \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(                                                  \
+      ezctest_assertion_failed(                                                \
           __FILE__, __LINE__, 1,                                               \
           "Expected: %s == %s (float)\n  Actual: %g vs %g (diff: %g)", #val1,  \
-          #val2, (double)ezctest_v1, (double)ezctest_v2,                           \
-          (double)(ezctest_v1 - ezctest_v2));                                      \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+          #val2, (double)ezctest_v1, (double)ezctest_v2,                       \
+          (double)(ezctest_v1 - ezctest_v2));                                  \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -2990,18 +3010,18 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 
 #define ASSERT_DOUBLE_EQ(val1, val2)                                           \
   do {                                                                         \
-    double ezctest_v1 = (double)(val1);                                          \
-    double ezctest_v2 = (double)(val2);                                          \
-    if (ezctest_double_eq(ezctest_v1, ezctest_v2, 1e-10)) {                          \
-      ezctest_assertion_passed();                                                \
+    double ezctest_v1 = (double)(val1);                                        \
+    double ezctest_v2 = (double)(val2);                                        \
+    if (ezctest_double_eq(ezctest_v1, ezctest_v2, 1e-10)) {                    \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 1,                            \
-                             "Expected: %s == %s (double)\n  Actual: %.15g "   \
-                             "vs %.15g (diff: %.15g)",                         \
-                             #val1, #val2, ezctest_v1, ezctest_v2,                 \
-                             (ezctest_v1 - ezctest_v2));                           \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+      ezctest_assertion_failed(__FILE__, __LINE__, 1,                          \
+                               "Expected: %s == %s (double)\n  Actual: %.15g " \
+                               "vs %.15g (diff: %.15g)",                       \
+                               #val1, #val2, ezctest_v1, ezctest_v2,           \
+                               (ezctest_v1 - ezctest_v2));                     \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -3009,21 +3029,22 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 
 #define ASSERT_NEAR(val1, val2, epsilon)                                       \
   do {                                                                         \
-    double ezctest_v1 = (double)(val1);                                          \
-    double ezctest_v2 = (double)(val2);                                          \
-    double ezctest_eps = (double)(epsilon);                                      \
-    if (ezctest_double_eq(ezctest_v1, ezctest_v2, ezctest_eps)) {                      \
-      ezctest_assertion_passed();                                                \
+    double ezctest_v1 = (double)(val1);                                        \
+    double ezctest_v2 = (double)(val2);                                        \
+    double ezctest_eps = (double)(epsilon);                                    \
+    if (ezctest_double_eq(ezctest_v1, ezctest_v2, ezctest_eps)) {              \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(                                                  \
+      ezctest_assertion_failed(                                                \
           __FILE__, __LINE__, 1,                                               \
           "Expected: |%s - %s| <= %s\n  Actual: |%.15g - %.15g| = %.15g "      \
           "(epsilon: %.15g)",                                                  \
-          #val1, #val2, #epsilon, ezctest_v1, ezctest_v2,                          \
-          (ezctest_v1 > ezctest_v2 ? ezctest_v1 - ezctest_v2 : ezctest_v2 - ezctest_v1),   \
-          ezctest_eps);                                                          \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+          #val1, #val2, #epsilon, ezctest_v1, ezctest_v2,                      \
+          (ezctest_v1 > ezctest_v2 ? ezctest_v1 - ezctest_v2                   \
+                                   : ezctest_v2 - ezctest_v1),                 \
+          ezctest_eps);                                                        \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -3040,12 +3061,12 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
       }                                                                        \
     }                                                                          \
     if (is_empty) {                                                            \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 1,                            \
-                             "Expected: %s is not empty\n", #ptr);             \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+      ezctest_assertion_failed(__FILE__, __LINE__, 1,                          \
+                               "Expected: %s is not empty\n", #ptr);           \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -3062,12 +3083,12 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
       }                                                                        \
     }                                                                          \
     if (!is_empty) {                                                           \
-      ezctest_assertion_passed();                                                \
+      ezctest_assertion_passed();                                              \
     } else {                                                                   \
-      ezctest_assertion_failed(__FILE__, __LINE__, 1, "Expected: %s is empty\n", \
-                             #ptr);                                            \
-      if (g_ezctest_longjmp_ctx.has_jumped) {                                    \
-        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                               \
+      ezctest_assertion_failed(__FILE__, __LINE__, 1,                          \
+                               "Expected: %s is empty\n", #ptr);               \
+      if (g_ezctest_longjmp_ctx.has_jumped) {                                  \
+        longjmp(g_ezctest_longjmp_ctx.jmp_env, 1);                             \
       }                                                                        \
       return;                                                                  \
     }                                                                          \
@@ -3095,34 +3116,31 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #if defined(_MSC_VER)
 /* MSVC: 使用内存扫描机制 */
 #define SETUP(suite_name)                                                      \
-  static void ezctest_setup_##suite_name##_func(void);                           \
-  static const ezctest_fixture_metadata_t ezctest_setup_##suite_name##_meta = {  \
-      EZCTEST_FIXTURE_MAGIC,                                                    \
-      #suite_name,                                                             \
-      ezctest_setup_##suite_name##_func,                                        \
-      NULL,                                                                    \
-      1};                                                                      \
-  static volatile const void *ezctest_keep_setup_##suite_name##_meta =          \
-      &ezctest_setup_##suite_name##_meta;                                       \
+  static void ezctest_setup_##suite_name##_func(void);                         \
+  static const ezctest_fixture_metadata_t ezctest_setup_##suite_name##_meta =  \
+      {EZCTEST_FIXTURE_MAGIC, #suite_name, ezctest_setup_##suite_name##_func,  \
+       NULL, 1};                                                               \
+  static volatile const void *ezctest_keep_setup_##suite_name##_meta =         \
+      &ezctest_setup_##suite_name##_meta;                                      \
   static void ezctest_setup_##suite_name##_func(void)
 #elif defined(EZCTEST_GCC_NO_CONSTRUCTOR)
 /* 老版本GCC: 使用.ctors段 */
 #define SETUP(suite_name)                                                      \
-  static void ezctest_setup_##suite_name##_func(void);                           \
-  static void ezctest_setup_##suite_name##_init(void) {                          \
-    ezctest_register_setup(#suite_name, ezctest_setup_##suite_name##_func);        \
+  static void ezctest_setup_##suite_name##_func(void);                         \
+  static void ezctest_setup_##suite_name##_init(void) {                        \
+    ezctest_register_setup(#suite_name, ezctest_setup_##suite_name##_func);    \
   }                                                                            \
-  static void (*ezctest_setup_##suite_name##_ctor_ptr)(void)                     \
-      __attribute__((section(".ctors"), used)) =                              \
-      ezctest_setup_##suite_name##_init;                                        \
+  static void (*ezctest_setup_##suite_name##_ctor_ptr)(void)                   \
+      __attribute__((section(".ctors"), used)) =                               \
+          ezctest_setup_##suite_name##_init;                                   \
   static void ezctest_setup_##suite_name##_func(void)
 #else
 /* 现代GCC/Clang: 使用constructor属性 */
 #define SETUP(suite_name)                                                      \
-  static void ezctest_setup_##suite_name##_func(void);                           \
-  static void __attribute__((constructor)) ezctest_setup_##suite_name##_init(    \
+  static void ezctest_setup_##suite_name##_func(void);                         \
+  static void __attribute__((constructor)) ezctest_setup_##suite_name##_init(  \
       void) {                                                                  \
-    ezctest_register_setup(#suite_name, ezctest_setup_##suite_name##_func);        \
+    ezctest_register_setup(#suite_name, ezctest_setup_##suite_name##_func);    \
   }                                                                            \
   static void ezctest_setup_##suite_name##_func(void)
 #endif
@@ -3147,34 +3165,34 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #if defined(_MSC_VER)
 /* MSVC: 使用内存扫描机制 */
 #define TEARDOWN(suite_name)                                                   \
-  static void ezctest_teardown_##suite_name##_func(void);                        \
-  static const ezctest_fixture_metadata_t ezctest_teardown_##suite_name##_meta = { \
-      EZCTEST_FIXTURE_MAGIC,                                                    \
-      #suite_name,                                                             \
-      NULL,                                                                    \
-      ezctest_teardown_##suite_name##_func,                                     \
-      0};                                                                      \
-  static volatile const void *ezctest_keep_teardown_##suite_name##_meta =       \
-      &ezctest_teardown_##suite_name##_meta;                                    \
+  static void ezctest_teardown_##suite_name##_func(void);                      \
+  static const ezctest_fixture_metadata_t                                      \
+      ezctest_teardown_##suite_name##_meta = {                                 \
+          EZCTEST_FIXTURE_MAGIC, #suite_name, NULL,                            \
+          ezctest_teardown_##suite_name##_func, 0};                            \
+  static volatile const void *ezctest_keep_teardown_##suite_name##_meta =      \
+      &ezctest_teardown_##suite_name##_meta;                                   \
   static void ezctest_teardown_##suite_name##_func(void)
 #elif defined(EZCTEST_GCC_NO_CONSTRUCTOR)
 /* 老版本GCC: 使用.ctors段 */
 #define TEARDOWN(suite_name)                                                   \
-  static void ezctest_teardown_##suite_name##_func(void);                        \
-  static void ezctest_teardown_##suite_name##_init(void) {                       \
-    ezctest_register_teardown(#suite_name, ezctest_teardown_##suite_name##_func);  \
+  static void ezctest_teardown_##suite_name##_func(void);                      \
+  static void ezctest_teardown_##suite_name##_init(void) {                     \
+    ezctest_register_teardown(#suite_name,                                     \
+                              ezctest_teardown_##suite_name##_func);           \
   }                                                                            \
-  static void (*ezctest_teardown_##suite_name##_ctor_ptr)(void)                  \
-      __attribute__((section(".ctors"), used)) =                              \
-      ezctest_teardown_##suite_name##_init;                                     \
+  static void (*ezctest_teardown_##suite_name##_ctor_ptr)(void)                \
+      __attribute__((section(".ctors"), used)) =                               \
+          ezctest_teardown_##suite_name##_init;                                \
   static void ezctest_teardown_##suite_name##_func(void)
 #else
 /* 现代GCC/Clang: 使用constructor属性 */
 #define TEARDOWN(suite_name)                                                   \
-  static void ezctest_teardown_##suite_name##_func(void);                        \
-  static void __attribute__((constructor)) ezctest_teardown_##suite_name##_init( \
-      void) {                                                                  \
-    ezctest_register_teardown(#suite_name, ezctest_teardown_##suite_name##_func);  \
+  static void ezctest_teardown_##suite_name##_func(void);                      \
+  static void __attribute__((constructor))                                     \
+  ezctest_teardown_##suite_name##_init(void) {                                 \
+    ezctest_register_teardown(#suite_name,                                     \
+                              ezctest_teardown_##suite_name##_func);           \
   }                                                                            \
   static void ezctest_teardown_##suite_name##_func(void)
 #endif
@@ -3205,7 +3223,7 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
  */
 #define DEFER(func, data)                                                      \
   do {                                                                         \
-    if (!ezctest_defer_add((ezctest_cleanup_func_t)(func), (void *)(data))) {      \
+    if (!ezctest_defer_add((ezctest_cleanup_func_t)(func), (void *)(data))) {  \
       fprintf(stderr, "Warning: DEFER stack full at %s:%d\n", __FILE__,        \
               __LINE__);                                                       \
     }                                                                          \
@@ -3220,25 +3238,25 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
  * @param argc 命令行参数个数
  * @param argv 命令行参数数组
  * @return 测试通过返回0，失败返回1
- * 
+ *
  * @details
  * 此宏智能适配所有平台和字符编码：
  * - Windows + _UNICODE：自动使用宽字符版本（wchar_t*）
  * - Windows + ANSI：使用多字节字符版本（char*）
  * - 其他平台：使用标准版本（char*）
- * 
+ *
  * 使用示例：
  * @code
  * // Windows Unicode 程序
  * int wmain(int argc, wchar_t* argv[]) {
  *     return RUN_ALL_TESTS(argc, argv);  // 自动使用宽字符版本
  * }
- * 
+ *
  * // Windows TCHAR 程序
  * int _tmain(int argc, TCHAR* argv[]) {
  *     return RUN_ALL_TESTS(argc, argv);  // 根据_UNICODE自动选择
  * }
- * 
+ *
  * // 标准 main 函数（所有平台）
  * int main(int argc, char* argv[]) {
  *     return RUN_ALL_TESTS(argc, argv);  // 使用标准版本
@@ -3246,9 +3264,9 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
  * @endcode
  */
 #if defined(EZCTEST_PLATFORM_WINDOWS) && defined(_UNICODE)
-  #define RUN_ALL_TESTS(argc, argv) ezctest_run_all_tests_w(argc, argv)
+#define RUN_ALL_TESTS(argc, argv) ezctest_run_all_tests_w(argc, argv)
 #else
-  #define RUN_ALL_TESTS(argc, argv) ezctest_run_all_tests(argc, argv)
+#define RUN_ALL_TESTS(argc, argv) ezctest_run_all_tests(argc, argv)
 #endif
 
 /* ============================================================================
@@ -3276,7 +3294,7 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 /* VC6 专用：恢复代码段（只需在所有 TEST 定义之后调用一次） */
 #if defined(_MSC_VER) && _MSC_VER < 1300
 /* 这是一个空宏，但提醒用户在此位置之前添加 #pragma data_seg() */
-#define EZCTEST_VC6_RESTORE_SEGMENT /* 在此宏之前的一行添加: #pragma \
+#define EZCTEST_VC6_RESTORE_SEGMENT /* 在此宏之前的一行添加: #pragma         \
                                         data_seg() */
 #else
 #define EZCTEST_VC6_RESTORE_SEGMENT
@@ -3338,11 +3356,11 @@ int ezctest_run_all_tests_w(int argc, wchar_t *wargv[]) {
 #ifdef EZCTEST_IMPLEMENTATION_MAIN
 int main(int argc, char **argv) {
 #ifdef _WIN32
-  /* 设置控制台代码页为UTF-8，解决中文乱码问题 */
-  /* VC6 的 SDK 可能不支持，需要动态加载 */
-  #if defined(_MSC_VER) && _MSC_VER >= 1300  /* VC7+ */
-    SetConsoleOutputCP(CP_UTF8);
-  #endif
+/* 设置控制台代码页为UTF-8，解决中文乱码问题 */
+/* VC6 的 SDK 可能不支持，需要动态加载 */
+#if defined(_MSC_VER) && _MSC_VER >= 1300 /* VC7+ */
+  SetConsoleOutputCP(CP_UTF8);
+#endif
 #endif
   return RUN_ALL_TESTS(argc, argv);
 }
